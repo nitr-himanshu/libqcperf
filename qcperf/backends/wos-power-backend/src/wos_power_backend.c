@@ -538,6 +538,7 @@ uint32_t get_wos_power_telemetry_metrics_data(void* lpParam) {
                 return_code = QC_PERF_RETURN_CODE_FAILED;
             } else {
                 data->capabilityId = WOS_POWER_CAPABILITY_1_ID;
+                data->backend_id = QC_PERF_BACKEND_POWER;
                 // Calculate number of samples using streaming rate
                 if (request->sampling_rate == 0 || request->sampling_rate > request->streaming_rate) {
                     SEND_MESSAGE(QC_PERF_MESSAGE_LEVEL_WARNING,
