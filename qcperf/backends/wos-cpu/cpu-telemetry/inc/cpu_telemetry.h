@@ -28,7 +28,7 @@
 */
 
 /**
- * @file cpu_telemetry_ntquery.h
+ * @file cpu_telemetry_query.h
  * @brief CPU telemetry interface for WOS CPU backend
  * @author Vijay Kumbhani (vkumbhan@qti.qualcomm.com)
  *
