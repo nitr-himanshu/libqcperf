@@ -322,6 +322,7 @@ static enum QcPerfReturnCode wos_cpu_start(struct QcPerfRequest *request) {
             if (RETURN_CODE_CPU_TELEMETRY_SUCCESS == tel_ret) {
                 g_telemetry_source = CPU_TELEMETRY_SOURCE_PDH;
                 SEND_MESSAGE(QC_PERF_MESSAGE_LEVEL_INFO, "CPU telemetry using Windows PDH (Performance Data Helper)");
+                SEND_MESSAGE(QC_PERF_MESSAGE_LEVEL_WARNING, "PDH does not provide per-core max frequency; max frequency metrics will report 0");
             } else {
                 SEND_MESSAGE(QC_PERF_MESSAGE_LEVEL_ERROR, "Both NtQuery and PDH telemetry init failed");
                 return_code = QC_PERF_RETURN_CODE_FAILED;
@@ -494,6 +495,30 @@ static void *wos_cpu_collect_metrics_thread(void *lpParam) {
         if (RETURN_CODE_CPU_TELEMETRY_SUCCESS != tel_ret) {
             SEND_MESSAGE(QC_PERF_MESSAGE_LEVEL_ERROR, "cpuTelemetry collect failed with error=%u", tel_ret);
         } else {
+            /* Clamp total utilization */
+            if (cpu_info.total_utilization < 0.0) {
+                SEND_MESSAGE(QC_PERF_MESSAGE_LEVEL_WARNING, "%s: Total utilization below 0%% (%.2f), clamping to 0",
+                             (CPU_TELEMETRY_SOURCE_NTQUERY == g_telemetry_source) ? "NtQuery" : "PDH", cpu_info.total_utilization);
+                cpu_info.total_utilization = 0.0;
+            } else if (cpu_info.total_utilization > 100.0) {
+                SEND_MESSAGE(QC_PERF_MESSAGE_LEVEL_WARNING, "%s: Total utilization above 100%% (%.2f), clamping to 100",
+                             (CPU_TELEMETRY_SOURCE_NTQUERY == g_telemetry_source) ? "NtQuery" : "PDH", cpu_info.total_utilization);
+                cpu_info.total_utilization = 100.0;
+            }
+
+            /* Clamp per-core utilization */
+            for (core_id = 0; core_id < cpu_info.num_cores; core_id++) {
+                if (cpu_info.cores[core_id].utilization < 0.0) {
+                    SEND_MESSAGE(QC_PERF_MESSAGE_LEVEL_WARNING, "%s: Core %u utilization below 0%% (%.2f), clamping to 0",
+                                 (CPU_TELEMETRY_SOURCE_NTQUERY == g_telemetry_source) ? "NtQuery" : "PDH", core_id, cpu_info.cores[core_id].utilization);
+                    cpu_info.cores[core_id].utilization = 0.0;
+                } else if (cpu_info.cores[core_id].utilization > 100.0) {
+                    SEND_MESSAGE(QC_PERF_MESSAGE_LEVEL_WARNING, "%s: Core %u utilization above 100%% (%.2f), clamping to 100",
+                                 (CPU_TELEMETRY_SOURCE_NTQUERY == g_telemetry_source) ? "NtQuery" : "PDH", core_id, cpu_info.cores[core_id].utilization);
+                    cpu_info.cores[core_id].utilization = 100.0;
+                }
+            }
+
             /* Total CPU utilization */
             if (metric_response_index < metric_response_allocated) {
                 data->metric_response[metric_response_index].metric_id                 = WOS_CPU_TOTAL_UTIL_ID;

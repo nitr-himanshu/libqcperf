@@ -161,11 +161,6 @@ enum eCpuTelemetryReturnCode cpuTelemetryPdh_collect(struct CpuMetrics *info) {
                 status = PdhGetFormattedCounterValue(g_total_util_counter, PDH_FMT_DOUBLE, NULL, &counter_value);
                 if (ERROR_SUCCESS == status) {
                     info->total_utilization = counter_value.doubleValue;
-                    if (info->total_utilization < 0.0) {
-                        info->total_utilization = 0.0;
-                    } else if (info->total_utilization > 100.0) {
-                        info->total_utilization = 100.0;
-                    }
                 }
             }
 
@@ -177,11 +172,6 @@ enum eCpuTelemetryReturnCode cpuTelemetryPdh_collect(struct CpuMetrics *info) {
                     status = PdhGetFormattedCounterValue(g_util_counters[i], PDH_FMT_DOUBLE, NULL, &counter_value);
                     if (ERROR_SUCCESS == status) {
                         info->cores[i].utilization = counter_value.doubleValue;
-                        if (info->cores[i].utilization < 0.0) {
-                            info->cores[i].utilization = 0.0;
-                        } else if (info->cores[i].utilization > 100.0) {
-                            info->cores[i].utilization = 100.0;
-                        }
                     }
                 }
 

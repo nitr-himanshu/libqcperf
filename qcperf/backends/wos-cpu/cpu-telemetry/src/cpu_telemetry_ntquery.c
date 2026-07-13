@@ -182,14 +182,20 @@ enum eCpuTelemetryReturnCode cpuTelemetryNtQuery_collect(struct CpuMetrics *metr
 
         if (0 != status) {
             return_code = RETURN_CODE_CPU_TELEMETRY_FAILED;
-        } else if (CallNtPowerInformation(
-                       ProcessorInformation,
-                       NULL,
-                       0,
-                       power,
-                       (ULONG)(g_num_cpus * sizeof(PROCESSOR_POWER_INFORMATION))) != STATUS_SUCCESS) {
-            return_code = RETURN_CODE_CPU_TELEMETRY_FAILED;
         } else {
+            status = (LONG)CallNtPowerInformation(
+                ProcessorInformation,
+                NULL,
+                0,
+                power,
+                (ULONG)(g_num_cpus * sizeof(PROCESSOR_POWER_INFORMATION)));
+
+            if (STATUS_SUCCESS != status) {
+                return_code = RETURN_CODE_CPU_TELEMETRY_FAILED;
+            }
+        }
+
+        if (RETURN_CODE_CPU_TELEMETRY_SUCCESS == return_code) {
             for (cpu = 0; cpu < g_num_cpus; cpu++) {
                 idle   = (uint64_t)perf[cpu].IdleTime.QuadPart;
                 kernel = (uint64_t)perf[cpu].KernelTime.QuadPart;
