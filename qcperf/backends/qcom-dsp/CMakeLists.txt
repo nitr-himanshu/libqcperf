@@ -1,4 +1,4 @@
-add_library(QcPerfQcomDsp SHARED
+add_library(QcPerfQcomDsp STATIC
     src/qcom_dsp.c
     src/dspquery_stub.c
     
