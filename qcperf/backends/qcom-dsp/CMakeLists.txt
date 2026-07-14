@@ -4,13 +4,20 @@ add_library(QcPerfQcomDsp STATIC
     
 )
 
+if(NOT FASTRPC_SDK_DIR)
+    message(FATAL_ERROR
+        "FASTRPC_SDK_DIR is not set. "
+        "Point it to the extracted fastrpc SDK root (the directory containing usr/include/fastrpc and usr/lib). "
+        "Example: -DFASTRPC_SDK_DIR=/path/to/fastrpc_extract")
+endif()
+
 find_path(FASTRPC_INCLUDE_DIR AEEStdDef.h
-    PATHS /usr/include /usr/local/include/fastrpc /usr/include/aarch64-linux-gnu
+    HINTS "${FASTRPC_SDK_DIR}/usr/include/fastrpc"
     NO_CMAKE_FIND_ROOT_PATH
 )
 
 find_library(FASTRPC_LIBRARY NAMES cdsprpc
-    PATHS /usr/lib /usr/local/lib /usr/lib/aarch64-linux-gnu/
+    HINTS "${FASTRPC_SDK_DIR}/usr/lib/aarch64-linux-gnu"
     NO_CMAKE_FIND_ROOT_PATH
 )
 
