@@ -43,14 +43,10 @@ static struct sysmon_query_prof_data* sysmon_query_prof_data_ptr[DSP_MAX] = {0};
 void get_full_uri_info(const char* uri, char* full_uri, int size, enum DspDomainId domain_id) {
     memset(full_uri, 0, (size_t)size);
     strlcpy(full_uri, uri, (size_t)size);
-    remote_handle64 fd;
-
     if (domain_id == DSP_ADSP) {
         strlcat(full_uri, ADSP_DOMAIN, (size_t)size);
-        remote_handle64_open(ITRANSPORT_PREFIX "attachuserpd&_dom=adsp", &fd);
     } else if (domain_id == DSP_NPU0) {
         strlcat(full_uri, CDSP_DOMAIN, (size_t)size);
-        remote_handle64_open(ITRANSPORT_PREFIX "attachuserpd&_dom=cdsp", &fd);
     } else {
         memset(full_uri, 0, (size_t)size);
     }
