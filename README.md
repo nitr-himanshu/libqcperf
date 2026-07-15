@@ -12,9 +12,12 @@ A lightweight, open-source performance profiling library for Qualcomm chipsets.
     - [Technical Foundation](#technical-foundation)
   - [Build System](#build-system)
   - [Compilation Instructions](#compilation-instructions)
+    - [Android ARM64](#android-arm64)
+      - [Setup](#setup)
+      - [CMake Presets](#cmake-presets)
     - [Linux ARM64](#linux-arm64)
       - [Command Line](#command-line)
-      - [CMake Presets](#cmake-presets)
+      - [CMake Presets](#cmake-presets-1)
     - [Windows ARM64](#windows-arm64)
   - [Design Diagrams](#design-diagrams)
     - [Sequence Diagram](#sequence-diagram)
@@ -65,11 +68,52 @@ Originally inspired by the Qualcomm Profiler tool, libqcperf is now available as
 ## Build System
 
 - **CMake**
-- **Compiler**
+- **Compiler / Toolchain**
   - Windows on Snapdragon - Visual Studio 2022
   - Linux ARM64 - ARM GNU Toolchain (`aarch64-none-linux-gnu-gcc`)
+  - Android ARM64 - Android NDK (r24+, `arm64-v8a`, API 29+)
 
 ## Compilation Instructions
+
+### Android ARM64
+
+To cross-compile the library for Android on ARM64 platforms, you need the [Android NDK](https://developer.android.com/ndk/downloads) (NDK r24 or later recommended).
+
+**Supported backends:** `DUMMY`, `CPU`, `NPU`
+
+#### Setup
+
+Edit the `android-user-base` preset in `qcperf/CMakeUserPresets.json` and set `ANDROID_NDK_PATH` to your NDK installation:
+
+```json
+{
+    "name": "android-user-base",
+    "hidden": true,
+    "environment": {
+        "ANDROID_NDK_PATH": "/path/to/your/android-ndk"
+    }
+}
+```
+
+All Android presets inherit `ANDROID_NDK_PATH` from this single entry — you only need to set it once.
+
+#### CMake Presets
+
+| Preset | Build Type | Output Directory |
+|--------|-----------|-----------------|
+| `android-aarch64-debug` | Debug | `build-android-aarch64-debug/` |
+| `android-aarch64-release` | Release | `build-android-aarch64-release/` |
+
+```bash
+# Configure and build (debug)
+cd qcperf
+cmake --preset android-aarch64-debug
+cmake --build --preset android-aarch64-debug
+
+# Configure and build (release)
+cmake --preset android-aarch64-release
+cmake --build --preset android-aarch64-release
+```
 
 ### Linux ARM64
 
