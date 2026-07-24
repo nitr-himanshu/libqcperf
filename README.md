@@ -106,25 +106,38 @@ cmake -S qcperf -B build-android-aarch64-release \
 cmake --build build-android-aarch64-release
 ```
 
+> **Note:** When running on the device, if `libcdsprpc.so` is not found at runtime, set:
+> ```bash
+> export LD_LIBRARY_PATH=/vendor/lib64
+> ```
+
 ### Linux ARM64
 
 To cross-compile the library for Linux on ARM64 platforms, you need the [ARM GNU Toolchain](https://developer.arm.com/downloads/-/arm-gnu-toolchain-downloads) (`arm-gnu-toolchain-**.*.rel1-x86_64-aarch64-none-linux-gnu`).
+
+The NPU backend depends on `libcdsprpc.so` from the [fastrpc](https://github.com/qualcomm/fastrpc) submodule.
 
 #### Command Line
 
 ```bash
 # Set the toolchain path (adjust to your installation directory)
 export AARCH64_TOOLCHAIN_PATH=/path/to/arm-gnu-toolchain
+export CC=$AARCH64_TOOLCHAIN_PATH/bin/aarch64-none-linux-gnu-gcc
+export AR=$AARCH64_TOOLCHAIN_PATH/bin/aarch64-none-linux-gnu-ar
+export RANLIB=$AARCH64_TOOLCHAIN_PATH/bin/aarch64-none-linux-gnu-ranlib
 
-# Configure and generate build files
+# Build fastrpc (libcdsprpc.so)
+git submodule update --init qcperf/third-party/fastrpc
+cd qcperf/third-party/fastrpc && bash autogen.sh && ./configure --host=aarch64-linux-android && cd -
+make -C qcperf/third-party/fastrpc/src libcdsprpc.la
+
+# Build libqcperf
 cmake -S qcperf -B build-linux-aarch64-release \
     -DTARGET_ARCH=linux-aarch64 \
     -DCMAKE_BUILD_TYPE=Release \
     -DProjectVersion="0.1.0.0" \
     -DBACKENDS="CPU;NPU;DUMMY" \
     -DBUILD_SHARED=OFF
-
-# Compile the project
 cmake --build build-linux-aarch64-release
 ```
 
