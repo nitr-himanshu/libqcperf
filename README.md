@@ -13,8 +13,8 @@ A lightweight, open-source performance profiling library for Qualcomm chipsets.
   - [Build System](#build-system)
   - [Compilation Instructions](#compilation-instructions)
     - [Android ARM64](#android-arm64)
-      - [Setup](#setup)
-      - [CMake Presets](#cmake-presets)
+      - [Step 1: Build libcdsprpc.so from fastrpc submodule](#step-1-build-libcdsprpcso-from-fastrpc-submodule)
+      - [Step 2: Build libqcperf](#step-2-build-libqcperf)
     - [Linux ARM64](#linux-arm64)
       - [Command Line](#command-line)
       - [CMake Presets](#cmake-presets-1)
@@ -81,38 +81,49 @@ To cross-compile the library for Android on ARM64 platforms, you need the [Andro
 
 **Supported backends:** `DUMMY`, `CPU`, `NPU`
 
-#### Setup
+The NPU backend depends on `libcdsprpc.so` from the [fastrpc](https://github.com/qualcomm/fastrpc) submodule. You must build it first before compiling libqcperf with NPU support.
 
-Edit the `android-user-base` preset in `qcperf/CMakeUserPresets.json` and set `ANDROID_NDK_PATH` to your NDK installation:
-
-```json
-{
-    "name": "android-user-base",
-    "hidden": true,
-    "environment": {
-        "ANDROID_NDK_PATH": "/path/to/your/android-ndk"
-    }
-}
-```
-
-All Android presets inherit `ANDROID_NDK_PATH` from this single entry — you only need to set it once.
-
-#### CMake Presets
-
-| Preset | Build Type | Output Directory |
-|--------|-----------|-----------------|
-| `android-aarch64-debug` | Debug | `build-android-aarch64-debug/` |
-| `android-aarch64-release` | Release | `build-android-aarch64-release/` |
+#### Step 1: Build libcdsprpc.so from fastrpc submodule
 
 ```bash
-# Configure and build (debug)
-cd qcperf
-cmake --preset android-aarch64-debug
-cmake --build --preset android-aarch64-debug
+# Initialize the fastrpc submodule
+git submodule update --init qcperf/third-party/fastrpc
 
-# Configure and build (release)
-cmake --preset android-aarch64-release
-cmake --build --preset android-aarch64-release
+# Set up NDK cross-compilation environment
+NDK=/path/to/android-ndk           # e.g. /opt/android-ndk/24.0.8215888
+TOOLCHAIN=$NDK/toolchains/llvm/prebuilt/linux-x86_64
+API=29
+
+export CC=$TOOLCHAIN/bin/aarch64-linux-android${API}-clang
+export AR=$TOOLCHAIN/bin/llvm-ar
+export RANLIB=$TOOLCHAIN/bin/llvm-ranlib
+
+# Generate build system and configure for Android cross-compile
+cd qcperf/third-party/fastrpc
+./autogen.sh
+./configure --host=aarch64-linux-android
+cd -
+
+# Build libcdsprpc.so
+make -C qcperf/third-party/fastrpc/src libcdsprpc.la
+```
+
+The built library will be at `qcperf/third-party/fastrpc/src/.libs/libcdsprpc.so`.
+
+#### Step 2: Build libqcperf
+
+```bash
+# Configure (using Android NDK toolchain)
+cmake -S qcperf -B build-android-aarch64-release \
+    -DCMAKE_TOOLCHAIN_FILE=$NDK/build/cmake/android.toolchain.cmake \
+    -DANDROID_ABI=arm64-v8a \
+    -DANDROID_PLATFORM=android-29 \
+    -DCMAKE_BUILD_TYPE=Release \
+    -DProjectVersion="0.1.0.0" \
+    -DBACKENDS="CPU;NPU;DUMMY"
+
+# Build
+cmake --build build-android-aarch64-release
 ```
 
 ### Linux ARM64

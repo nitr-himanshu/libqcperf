@@ -2,19 +2,6 @@
     "version": 3,
     "configurePresets": [
         {
-            "name": "android-user-base",
-            "hidden": true,
-            "displayName": "Android User Base (hidden)",
-            "description": "User-specific base preset for Android. Set ANDROID_NDK_PATH here once — all Android presets inherit from this.",
-            "environment": {
-                "ANDROID_NDK_PATH": "/path/to/android-ndk"
-            },
-            "cacheVariables": {
-                "ProjectVersion": "0.1.0.0",
-                "CMAKE_TOOLCHAIN_FILE": "$env{ANDROID_NDK_PATH}/build/cmake/android.toolchain.cmake"
-            }
-        },
-        {
             "name": "qclinux-user-base",
             "hidden": true,
             "displayName": "QCLinux User Base (hidden)",
@@ -23,18 +10,6 @@
                 "ProjectVersion": "0.1.0.0",
                 "AARCH64_TOOLCHAIN_PATH": "/path/to/arm-gnu-toolchain"
             }
-        },
-        {
-            "name": "android-aarch64-debug",
-            "displayName": "Android AArch64 Debug",
-            "description": "Build for Android AArch64 (Debug) using Android NDK. ANDROID_NDK_PATH is set in android-user-base.",
-            "inherits": ["android-aarch64-debug-base", "android-user-base"]
-        },
-        {
-            "name": "android-aarch64-release",
-            "displayName": "Android AArch64 Release",
-            "description": "Build for Android AArch64 (Release) using Android NDK. ANDROID_NDK_PATH is set in android-user-base.",
-            "inherits": ["android-aarch64-release-base", "android-user-base"]
         },
         {
             "name": "qclinux-aarch64-debug",
@@ -84,18 +59,6 @@
         }
     ],
     "buildPresets": [
-        {
-            "name": "android-aarch64-debug",
-            "displayName": "Build Android AArch64 Debug",
-            "description": "Build the android-aarch64-debug configure preset",
-            "configurePreset": "android-aarch64-debug"
-        },
-        {
-            "name": "android-aarch64-release",
-            "displayName": "Build Android AArch64 Release",
-            "description": "Build the android-aarch64-release configure preset",
-            "configurePreset": "android-aarch64-release"
-        },
         {
             "name": "qclinux-aarch64-debug",
             "displayName": "Build QCLinux AArch64 Debug",
