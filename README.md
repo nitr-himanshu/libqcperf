@@ -13,8 +13,6 @@ A lightweight, open-source performance profiling library for Qualcomm chipsets.
   - [Build System](#build-system)
   - [Compilation Instructions](#compilation-instructions)
     - [Android ARM64](#android-arm64)
-      - [Step 1: Build libcdsprpc.so from fastrpc submodule](#step-1-build-libcdsprpcso-from-fastrpc-submodule)
-      - [Step 2: Build libqcperf](#step-2-build-libqcperf)
     - [Linux ARM64](#linux-arm64)
       - [Command Line](#command-line)
       - [CMake Presets](#cmake-presets-1)
@@ -81,39 +79,23 @@ To cross-compile the library for Android on ARM64 platforms, you need the [Andro
 
 **Supported backends:** `DUMMY`, `CPU`, `NPU`
 
-The NPU backend depends on `libcdsprpc.so` from the [fastrpc](https://github.com/qualcomm/fastrpc) submodule. You must build it first before compiling libqcperf with NPU support.
-
-#### Step 1: Build libcdsprpc.so from fastrpc submodule
+The NPU backend depends on `libcdsprpc.so` from the [fastrpc](https://github.com/qualcomm/fastrpc) submodule.
 
 ```bash
-# Initialize the fastrpc submodule
-git submodule update --init qcperf/third-party/fastrpc
-
-# Set up NDK cross-compilation environment
+# Set NDK path
 NDK=/path/to/android-ndk           # e.g. /opt/android-ndk/24.0.8215888
 TOOLCHAIN=$NDK/toolchains/llvm/prebuilt/linux-x86_64
 API=29
-
 export CC=$TOOLCHAIN/bin/aarch64-linux-android${API}-clang
 export AR=$TOOLCHAIN/bin/llvm-ar
 export RANLIB=$TOOLCHAIN/bin/llvm-ranlib
 
-# Generate build system and configure for Android cross-compile
-cd qcperf/third-party/fastrpc
-./autogen.sh
-./configure --host=aarch64-linux-android
-cd -
-
-# Build libcdsprpc.so
+# Build fastrpc (libcdsprpc.so)
+git submodule update --init qcperf/third-party/fastrpc
+cd qcperf/third-party/fastrpc && bash autogen.sh && ./configure --host=aarch64-linux-android && cd -
 make -C qcperf/third-party/fastrpc/src libcdsprpc.la
-```
 
-The built library will be at `qcperf/third-party/fastrpc/src/.libs/libcdsprpc.so`.
-
-#### Step 2: Build libqcperf
-
-```bash
-# Configure (using Android NDK toolchain)
+# Build libqcperf
 cmake -S qcperf -B build-android-aarch64-release \
     -DCMAKE_TOOLCHAIN_FILE=$NDK/build/cmake/android.toolchain.cmake \
     -DANDROID_ABI=arm64-v8a \
@@ -121,8 +103,6 @@ cmake -S qcperf -B build-android-aarch64-release \
     -DCMAKE_BUILD_TYPE=Release \
     -DProjectVersion="0.1.0.0" \
     -DBACKENDS="CPU;NPU;DUMMY"
-
-# Build
 cmake --build build-android-aarch64-release
 ```
 
