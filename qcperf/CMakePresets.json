@@ -7,30 +7,6 @@
     },
     "configurePresets": [
         {
-            "name": "qclinux-aarch64-debug-base",
-            "hidden": true,
-            "displayName": "QCLinux AArch64 Debug Base (hidden)",
-            "description": "Base preset for QCLinux AArch64 cross-compilation using ARM GNU Toolchain (Debug). Not used directly — inherit from this in CMakeUserPresets.json.",
-            "generator": "Unix Makefiles",
-            "binaryDir": "${sourceDir}/../build-qclinux-aarch64-debug",
-            "cacheVariables": {
-                "TARGET_ARCH": "linux-aarch64",
-                "CMAKE_BUILD_TYPE": "Debug"
-            }
-        },
-        {
-            "name": "qclinux-aarch64-release-base",
-            "hidden": true,
-            "displayName": "QCLinux AArch64 Release Base (hidden)",
-            "description": "Base preset for QCLinux AArch64 cross-compilation using ARM GNU Toolchain (Release). Not used directly — inherit from this in CMakeUserPresets.json.",
-            "generator": "Unix Makefiles",
-            "binaryDir": "${sourceDir}/../build-qclinux-aarch64-release",
-            "cacheVariables": {
-                "TARGET_ARCH": "linux-aarch64",
-                "CMAKE_BUILD_TYPE": "Release"
-            }
-        },
-        {
             "name": "linux-aarch64-debug-base",
             "hidden": true,
             "displayName": "Linux AArch64 Debug Base (hidden)",

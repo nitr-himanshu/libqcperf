@@ -2,28 +2,6 @@
     "version": 3,
     "configurePresets": [
         {
-            "name": "qclinux-user-base",
-            "hidden": true,
-            "displayName": "QCLinux User Base (hidden)",
-            "description": "User-specific base preset for QCLinux. Set AARCH64_TOOLCHAIN_PATH here once — all QCLinux presets inherit from this.",
-            "cacheVariables": {
-                "ProjectVersion": "0.1.0.0",
-                "AARCH64_TOOLCHAIN_PATH": "/path/to/arm-gnu-toolchain"
-            }
-        },
-        {
-            "name": "qclinux-aarch64-debug",
-            "displayName": "QCLinux AArch64 Debug",
-            "description": "Cross-compile for QCLinux AArch64 (Debug) using ARM GNU Toolchain. AARCH64_TOOLCHAIN_PATH is set in qclinux-user-base.",
-            "inherits": ["qclinux-aarch64-debug-base", "qclinux-user-base"]
-        },
-        {
-            "name": "qclinux-aarch64-release",
-            "displayName": "QCLinux AArch64 Release",
-            "description": "Cross-compile for QCLinux AArch64 (Release) using ARM GNU Toolchain. AARCH64_TOOLCHAIN_PATH is set in qclinux-user-base.",
-            "inherits": ["qclinux-aarch64-release-base", "qclinux-user-base"]
-        },
-        {
             "name": "linux-aarch64-user-base",
             "hidden": true,
             "displayName": "Linux AArch64 User Base (hidden)",
@@ -59,18 +37,6 @@
         }
     ],
     "buildPresets": [
-        {
-            "name": "qclinux-aarch64-debug",
-            "displayName": "Build QCLinux AArch64 Debug",
-            "description": "Build the qclinux-aarch64-debug configure preset",
-            "configurePreset": "qclinux-aarch64-debug"
-        },
-        {
-            "name": "qclinux-aarch64-release",
-            "displayName": "Build QCLinux AArch64 Release",
-            "description": "Build the qclinux-aarch64-release configure preset",
-            "configurePreset": "qclinux-aarch64-release"
-        },
         {
             "name": "linux-aarch64-debug",
             "displayName": "Build Linux AArch64 Debug",
