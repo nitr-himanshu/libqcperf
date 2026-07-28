@@ -260,7 +260,7 @@ if(QCPERF_OS_LINUX)
     endif()
 
     set(_OS_M "m")
-    if(ANDROID)
+    if(QCPERF_OS_ANDROID)
         set(_OS_THREAD "")
     else()
         set(_OS_THREAD "pthread")

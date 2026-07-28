@@ -84,7 +84,7 @@ endif()
 set(QCPERF_LINUX_LIBS "")
 
 # Add Linux-specific libraries if needed
-if(QCPERF_OS_LINUX AND NOT ANDROID)
+if(QCPERF_OS_LINUX AND NOT QCPERF_OS_ANDROID)
     list(APPEND QCPERF_LINUX_LIBS
         pthread
         dl
@@ -92,7 +92,7 @@ if(QCPERF_OS_LINUX AND NOT ANDROID)
 endif()
 
 set(_OS_M "m")
-if(ANDROID)
+if(QCPERF_OS_ANDROID)
     set(_OS_THREAD "")
 else()
     set(_OS_THREAD "pthread")
