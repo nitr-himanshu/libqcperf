@@ -3,6 +3,7 @@
 A lightweight, open-source performance profiling library for Qualcomm chipsets.
 
 ## Table of Contents
+
 - [libqcperf](#libqcperf)
   - [Table of Contents](#table-of-contents)
   - [Introduction](#introduction)
@@ -12,11 +13,14 @@ A lightweight, open-source performance profiling library for Qualcomm chipsets.
     - [Technical Foundation](#technical-foundation)
   - [Build System](#build-system)
   - [Compilation Instructions](#compilation-instructions)
-    - [Android ARM64](#android-arm64)
-    - [Linux ARM64](#linux-arm64)
+    - [Android ARM64](#android-arm64-compilation)
+    - [Linux ARM64](#linux-arm64-compilation)
       - [Command Line](#command-line)
-      - [CMake Presets](#cmake-presets-1)
-    - [Windows ARM64](#windows-arm64)
+      - [CMake Presets](#cmake-presets)
+    - [Windows ARM64](#windows-arm64-compilation)
+  - [Running QcPerfCoreTest](#running-qcperfcoretest)
+    - [Usage](#usage)
+    - [Android ARM64](#android-arm64)
   - [Design Diagrams](#design-diagrams)
     - [Sequence Diagram](#sequence-diagram)
     - [Flow Diagram](#flow-diagram)
@@ -73,7 +77,7 @@ Originally inspired by the Qualcomm Profiler tool, libqcperf is now available as
 
 ## Compilation Instructions
 
-### Android ARM64
+### Android ARM64 Compilation
 
 To cross-compile the library for Android on ARM64 platforms, you need the [Android NDK](https://developer.android.com/ndk/downloads) (NDK r24 or later recommended).
 
@@ -111,7 +115,7 @@ cmake --build build-android-aarch64-release
 > export LD_LIBRARY_PATH=/vendor/lib64
 > ```
 
-### Linux ARM64
+### Linux ARM64 Compilation
 
 To cross-compile the library for Linux on ARM64 platforms, you need the [ARM GNU Toolchain](https://developer.arm.com/downloads/-/arm-gnu-toolchain-downloads) (`arm-gnu-toolchain-**.*.rel1-x86_64-aarch64-none-linux-gnu`).
 
@@ -158,6 +162,7 @@ cmake --build build-linux-aarch64-release
 The build is configured via CMake presets defined in `qcperf/CMakePresets.json` (shared base) and `qcperf/CMakeUserPresets.json` (user-local overrides).
 
 **Toolchain path — priority order:**
+
 1. Environment variable `AARCH64_TOOLCHAIN_PATH` (takes precedence if set)
 2. Value defined in the `linux-aarch64-user-base` hidden preset in `qcperf/CMakeUserPresets.json` (fallback default)
 
@@ -192,8 +197,7 @@ cmake --preset linux-aarch64-release-shared
 cmake --build --preset linux-aarch64-release-shared
 ```
 
-
-### Windows ARM64
+### Windows ARM64 Compilation
 
 To build the library for Windows on ARM64 platforms:
 
@@ -216,15 +220,57 @@ cmake -B <build_dir_path> -G "Visual Studio 17 2022" -A ARM64 -DProjectVersion="
 cmake --build <build_dir_path> --config Release
 ```
 
+## Running QcPerfCoreTest
+
+`QcPerfCoreTest` is a small C test application that exercises the full library flow (initialize → connect to a backend → query capabilities → stream metrics → disconnect → deinitialize). It is built automatically alongside the library and placed at the root of the build directory (e.g. `build-android-aarch64-release/QcPerfCoreTest`).
+
+### Usage
+
+```bash
+QcPerfCoreTest <backend_id> <sampling_rate_ms> <streaming_rate_ms> <verbose>
+```
+
+| Argument | Description |
+|----------|-------------|
+| `backend_id` | Numeric backend to connect to: `0` = DUMMY, `1` = CPU, `2` = NPU |
+| `sampling_rate_ms` | Sampling rate in milliseconds |
+| `streaming_rate_ms` | Streaming (callback) rate in milliseconds |
+| `verbose` | `0` = off, `1` = on |
+
+> **Note:** The `backend_id` must correspond to a backend compiled into the build via `-DBACKENDS`. Connecting to a backend that was not compiled in returns an invalid-backend error.
+
+### Android ARM64
+
+Push the binary to `/vendor/bin` and run it on the device via `adb`.
+
+```bash
+# Elevate and make /vendor writable
+adb root
+adb remount
+
+# Push the test binary to /vendor/bin
+adb push build-android-aarch64-release/QcPerfCoreTest /vendor/bin/
+adb shell chmod +x /vendor/bin/QcPerfCoreTest
+
+# Run — example: DUMMY backend, 100 ms sampling, 1000 ms streaming, verbose on
+adb shell /vendor/bin/QcPerfCoreTest 0 100 1000 1
+
+# Run the NPU backend
+adb shell /vendor/bin/QcPerfCoreTest 2 100 1000 1
+```
+
 ## Design Diagrams
 
 ### Sequence Diagram
+
 - [QcPerf Sequence Diagram](./assets/libqcperf_sequence.mmd)
 
 ### Flow Diagram
+
 - [QcPerf Flow Diagram](./assets/libqcperf_flow.mmd)
 
 ### Backend Architecture
+
 - [QcPerf Backend Architecture](./assets/libqcperf_backend_architecture.mmd)
 
 ## Documentation for backend developers
