@@ -36,9 +36,27 @@
 #ifndef QCOM_DSP_H_
 #define QCOM_DSP_H_
 
+#ifdef QCPERF_PLATFORM_WINDOWS
+#include "dspquery_stub_wos.h"
+#include "rpc_symbols.h"
+#include "remote_wos.h"
+#include "rpcmem_wos.h"
+
+/* On WoS, rpcmem_alloc/rpcmem_free are provided by fastrpc_runtime.c via the
+   loaded DLL function pointers.  Use zeroed heap/flag values. */
+#define RPCMEM_DEFAULT_HEAP      0
+#define RPCMEM_DEFAULT_FLAGS     0
+#define RPCMEM_HEAP_NONCOHERENT  0
+
+#ifdef _WIN32
+size_t strlcpy(char* dst, const char* src, size_t size);
+size_t strlcat(char* dst, const char* src, size_t size);
+#endif
+#else
 #include "dspquery_stub.h"
 #include "remote.h"
 #include "rpcmem.h"
+#endif /* QCPERF_PLATFORM_WINDOWS */
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -65,7 +83,7 @@ struct sysmon_query_prof_data {
 enum DspDomainId {
     DSP_ADSP = ADSP_DOMAIN_ID,
     DSP_NPU0 = CDSP_DOMAIN_ID,
-    DSP_MAX  = CDSP_DOMAIN_ID,
+    DSP_MAX  = CDSP_DOMAIN_ID + 1,  /* array size sentinel, not last domain */
 };
 
 enum DspReturnCode {
@@ -76,8 +94,10 @@ enum DspReturnCode {
     RETURN_CODE_DSP_SYSMON_QUERY_RPC_MEM_ALLOC_FAILED,
     RETURN_CODE_DSP_SYSMON_QUERY_GET_PROF_DATA_FAILED,
     RETURN_CODE_DSP_SYSMON_QUERY_DEINIT_FAILED,
+#ifndef QCPERF_PLATFORM_WINDOWS
     RETURN_CODE_DSP_REMOTE_SESSION_CONTROL_SUCCESS,
     RETURN_CODE_DSP_REMOTE_SESSION_CONTROL_FAILED,
+#endif
 };
 
 enum DspReturnCode qcom_dsp_init(enum DspDomainId);
