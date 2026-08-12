@@ -153,7 +153,7 @@ void fastrpc_unload_symbols(int q6Processor) {
     prpcmem_free[q6Processor]            = NULL;
 }
 
-void* rpcmem_alloc(int heapid, uint32 flags, int size) {
+void* rpcmem_alloc(int heapid, uint32_t flags, int size) {
     int i;
     for (i = 0; i < MAX_NUMBER_OF_DSPs; i++) {
         if (prpcmem_alloc[i] != NULL) {

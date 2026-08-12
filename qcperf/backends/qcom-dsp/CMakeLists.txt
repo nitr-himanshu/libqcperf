@@ -34,6 +34,7 @@ if(NOT QCPERF_OS_WINDOWS)
 else()
     target_include_directories(QcPerfQcomDsp PUBLIC
         inc
+        ${FASTRPC_DIR}/inc
     )
 
     target_link_libraries(QcPerfQcomDsp PUBLIC
