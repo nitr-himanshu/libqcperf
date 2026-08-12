@@ -1,4 +1,4 @@
-if(WIN32)
+if(QCPERF_OS_WINDOWS)
     set(DSPQUERY_STUB_SRC src/dspquery_stub_wos.c)
 else()
     set(DSPQUERY_STUB_SRC src/dspquery_stub.c)
@@ -7,12 +7,12 @@ endif()
 add_library(QcPerfQcomDsp STATIC
     src/qcom_dsp.c
     ${DSPQUERY_STUB_SRC}
-    $<$<BOOL:${WIN32}>:src/fastrpc_runtime.c>
+    $<$<BOOL:${QCPERF_OS_WINDOWS}>:src/fastrpc_runtime.c>
 )
 
 set(FASTRPC_DIR "${CMAKE_SOURCE_DIR}/third-party/fastrpc")
 
-if(NOT WIN32)
+if(NOT QCPERF_OS_WINDOWS)
     find_path(FASTRPC_INCLUDE_DIR AEEStdDef.h
         HINTS "${FASTRPC_DIR}/inc"
         NO_CMAKE_FIND_ROOT_PATH
