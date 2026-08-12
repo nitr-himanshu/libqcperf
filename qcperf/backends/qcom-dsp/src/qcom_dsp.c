@@ -71,6 +71,7 @@ static enum DspReturnCode set_remote_process_domain(enum fastrpc_process_type pr
 
 enum DspReturnCode qcom_dsp_init(enum DspDomainId domain_id) {
     enum DspReturnCode return_code     = RETURN_CODE_DSP_LIB_FAIL;
+    enum DspReturnCode return_remote_code = RETURN_CODE_DSP_LIB_FAIL;
     int sysmon_query_return_code       = -1;
     unsigned int npu_id                = 0;
     char full_uri[256]                 = {0};
@@ -88,7 +89,7 @@ enum DspReturnCode qcom_dsp_init(enum DspDomainId domain_id) {
         return RETURN_CODE_DSP_LIB_FAIL;
     }
 #else
-    enum DspReturnCode return_remote_code = set_remote_process_domain(PROCESS_TYPE_SIGNED, domain_id);
+    return_remote_code = set_remote_process_domain(PROCESS_TYPE_SIGNED, domain_id);
     if (return_remote_code != RETURN_CODE_DSP_REMOTE_SESSION_CONTROL_SUCCESS) {
         return return_remote_code;
     }
@@ -111,8 +112,7 @@ enum DspReturnCode qcom_dsp_init(enum DspDomainId domain_id) {
             return_code = RETURN_CODE_DSP_SYSMON_QUERY_INIT_FAILED;
         } else {
             sysmon_query_prof_data_ptr[domain_id] =
-                (struct sysmon_query_prof_data*)rpcmem_alloc(RPCMEM_DEFAULT_HEAP,
-                    (RPCMEM_DEFAULT_FLAGS | RPCMEM_HEAP_NONCOHERENT),
+                (struct sysmon_query_prof_data*)rpcmem_alloc(RPCMEM_DEFAULT_HEAP, (RPCMEM_DEFAULT_FLAGS | RPCMEM_HEAP_NONCOHERENT),
                     sizeof(struct sysmon_query_prof_data));
             if (sysmon_query_prof_data_ptr[domain_id] == NULL) {
                 return_code = RETURN_CODE_DSP_SYSMON_QUERY_RPC_MEM_ALLOC_FAILED;
@@ -132,6 +132,7 @@ enum DspReturnCode qcom_dsp_init(enum DspDomainId domain_id) {
 struct sysmon_query_prof_data* qcom_dsp_get_prof_data(enum DspDomainId domain_id, int* no_metrics) {
     unsigned int npu_id                       = 0;
     struct sysmon_query_prof_data* result_ptr = NULL;
+    int result = 0;
 #ifdef QCPERF_PLATFORM_WINDOWS
     int q6Processor                           = (int)domain_id;
 #endif
@@ -144,12 +145,12 @@ struct sysmon_query_prof_data* qcom_dsp_get_prof_data(enum DspDomainId domain_id
         }
 
 #ifdef QCPERF_PLATFORM_WINDOWS
-        int result = sysmonquery_get_profdata(h[domain_id],
+        result = sysmonquery_get_profdata(h[domain_id],
             (unsigned char*)sysmon_query_prof_data_ptr[domain_id],
             sizeof(struct sysmon_query_prof_data),
             no_metrics, npu_id, q6Processor);
 #else
-        int result = sysmonquery_get_profdata(h[domain_id],
+        result = sysmonquery_get_profdata(h[domain_id],
             (unsigned char*)sysmon_query_prof_data_ptr[domain_id],
             sizeof(struct sysmon_query_prof_data),
             no_metrics, npu_id);
