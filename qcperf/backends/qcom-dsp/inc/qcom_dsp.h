@@ -83,7 +83,7 @@ struct sysmon_query_prof_data {
 enum DspDomainId {
     DSP_ADSP = ADSP_DOMAIN_ID,
     DSP_NPU0 = CDSP_DOMAIN_ID,
-    DSP_MAX  = CDSP_DOMAIN_ID + 1,  /* array size sentinel, not last domain */
+    DSP_MAX  = CDSP_DOMAIN_ID + 1,
 };
 
 enum DspReturnCode {
